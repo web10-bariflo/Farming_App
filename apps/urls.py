@@ -4,5 +4,5 @@ from .views import FeedingDataAPI, WaterQualityAPI, PowerMonitoringAPI
 urlpatterns = [
     path('feeding-data/', FeedingDataAPI.as_view(), name="feeding-data-api"),                   # GET
     path('water-quality/', WaterQualityAPI.as_view(), name="water-quality-api"),                # GET
-    path('power-monitering/', PowerMonitoringAPI.as_view(), name="power-monitering-api"),       # GET
+    path('power-monitoring/', PowerMonitoringAPI.as_view(), name="power-monitoring-api"),       # GET
 ]
