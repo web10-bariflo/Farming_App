@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 
@@ -13,7 +14,25 @@ class PowerCenter(models.Model):
 
     def __str__(self):
         return self.pc_id
-    
+
+# -------------------------------
+# User
+# -------------------------------
+class User(models.Model):
+    uid = models.CharField(max_length=50, primary_key=True)                     # Primary key
+    email = models.EmailField(unique=True)                                      # Unique email
+    name = models.CharField(max_length=255)                                     # User name
+    mobile_no = models.CharField(max_length=20, blank=True, null=True)          # Optional
+    city_village = models.CharField(max_length=100, blank=True, null=True)
+    district = models.CharField(max_length=100, blank=True, null=True)
+    state = models.CharField(max_length=100, blank=True, null=True)
+    pin_code = models.CharField(max_length=20, blank=True, null=True)
+    photo_url = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)                        # Set timestamp on creation
+    updated_at = models.DateTimeField(auto_now=True)                            # Update timestamp on save
+
+    def __str__(self):
+        return self.name
 # -------------------------------
 # Pond
 # -------------------------------
@@ -22,8 +41,29 @@ class Pond(models.Model):
         PowerCenter, related_name="ponds", on_delete=models.CASCADE
     )
     pond_id = models.CharField(max_length=50, unique=True)
-    status = models.CharField(max_length=20)
-    connected = models.BooleanField(default=True)            # For API "connected" field
+    user_uid = models.CharField(max_length=50)
+    farm_name = models.CharField(max_length=255, default="Unknown Farm")
+    section = models.CharField(max_length=100, blank=True, null=True)
+    pond_name = models.CharField(max_length=255)
+    pond_type = models.CharField(max_length=100, blank=True, null=True)
+    pond_use = models.CharField(max_length=100, blank=True, null=True)
+    pond_depth = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    pond_depth_type = models.CharField(max_length=50, blank=True, null=True)
+    pond_size = models.DecimalField(max_digits=10, decimal_places=2, blank=True)
+    area_type = models.CharField(max_length=50, blank=True, null=True)
+    species_type = models.CharField(max_length=100, blank=True, null=True)
+    species_value = models.CharField(max_length=100, blank=True, null=True)
+    stocking_time = models.TimeField(blank=True, null=True)
+    stocking_date = models.DateField(blank=True, null=True)
+    aerator = models.CharField(max_length=100, blank=True, null=True)
+    pond_shape = models.CharField(max_length=100, blank=True, null=True)
+    pond_status = models.CharField(max_length=50, default='active')
+    city_village = models.CharField(max_length=100, blank=True, null=True)
+    doc = models.IntegerField(blank=True, null=True)                            # Day of Culture
+    status = models.CharField(max_length=20, default='active')                  # For API "status"
+    connected = models.BooleanField(default=True)                               # For API "connected" field
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.pond_id

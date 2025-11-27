@@ -9,25 +9,49 @@ from .serializers import FeedingDataSerializer, PondSerializer
 # -------------------------------
 class FeedingDataAPI(APIView):
     def get(self, request):
-        pond_data = []
+         # Get all PowerCenter objects from the database
+        power_centers = PowerCenter.objects.all()
+        # Initialize the response structure
+        response_data = {"powerCenters": []}
 
-        ponds = Pond.objects.all().prefetch_related('readings')
+        # Loop through each PowerCenter
+        for pc in power_centers:
+            # Create a dictionary for each power center
+            pc_data = {
+                "id": pc.pc_id,
+                "status": pc.status.lower(),
+                "ponds": []         # Initialize list to hold pond data
+            }
 
-        for p in ponds:
-            readings = getattr(p, 'readings', None)  # safely get readings
-            pond_data.append({
-                "id": p.pond_id,
-                "name": p.pond_id,
-                "connected": p.connected,
-                "readings": {
-                    "DO": readings.DO if readings else [],
-                    "PH": readings.PH if readings else [],
-                    "Salinity": readings.Salinity if readings else [],
-                    "Temp": readings.Temp if readings else [],
+            # Loop through all ponds associated with this power center
+            for pond in pc.ponds.all():
+                # Get the feeding motor associated with this pond (if exists)
+                feeding_motor = getattr(pond, "feeding_motor", None)
+
+                # Build pond data dictionary
+                pond_data = {
+                    "id": pond.pond_id,
+                    "status": pond.status.lower(),
+                    "feedingMotor": {
+                        "id": feeding_motor.motor_id if feeding_motor else None,
+                        "status": feeding_motor.status.lower() if feeding_motor else "inactive"
+                    },
+                    "checktrays": [          # List of all check trays for this pond
+                        {
+                            "id": ct.tray_id,
+                            "status": ct.status.lower(),
+                        }
+                        for ct in pond.check_trays.all()        # Loop through all check trays
+                    ]
                 }
-            })
+                # Append pond data to the current power center's pond list
+                pc_data["ponds"].append(pond_data)
 
-        return Response(pond_data)
+             # Append this power center's data to the final response
+            response_data["powerCenters"].append(pc_data)
+
+        # Return the final structured response as JSON
+        return Response(response_data)
 
 # -------------------------------
 # Water Quality API

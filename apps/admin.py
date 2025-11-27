@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PowerCenter, Pond, FeedingMotor, CheckTray, PondReading
+from .models import PowerCenter, Pond, FeedingMotor, CheckTray, PondReading, User
 
 # Inline for FeedingMotor under Pond
 class FeedingMotorInline(admin.StackedInline):
@@ -36,9 +36,16 @@ class PowerCenterAdmin(admin.ModelAdmin):
     search_fields = ("pc_id", "status")
     list_filter = ("status",)
 
+# Admin for User
+class UserAdmin(admin.ModelAdmin):
+    list_display = ("uid", "name", "email", "mobile_no", "city_village", "district", "state")
+    search_fields = ("uid", "name", "email", "mobile_no")
+    list_filter = ("state", "district", "city_village")
+
 # Register models
 admin.site.register(PowerCenter, PowerCenterAdmin)
 admin.site.register(Pond, PondAdmin)
 admin.site.register(FeedingMotor)
 admin.site.register(CheckTray)
 admin.site.register(PondReading)
+admin.site.register(User, UserAdmin)
