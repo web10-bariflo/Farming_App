@@ -10,7 +10,7 @@ class UserListAPI(APIView):
 #-----------------------------------------------------------------
 
     def get(self, request, uid=None):
-        # If UID is provided → return single user
+        # If UID is provided -------> return single user
         if uid:
             try:
                 user = User.objects.get(uid=uid)
