@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import PowerCenter, Pond
-from .serializers import FeedingDataSerializer, PondSerializer
 
+#    [Rashmi Ranjan Pradhan]
 # -------------------------------
 # Feeding Data API
 # -------------------------------
@@ -60,20 +60,20 @@ class WaterQualityAPI(APIView):
     def get(self, request):
         pond_data = []
 
-        # Use the Pond model, not 'pond' variable
-        ponds = Pond.objects.all().prefetch_related('readings')
+        # Use select_related for OneToOneField
+        ponds = Pond.objects.select_related('water_quality').all()
 
         for p in ponds:
-            readings = getattr(p, 'readings', None)  # safely get readings
+            water_quality = getattr(p, 'water_quality', None)  
             pond_data.append({
                 "id": p.pond_id,
                 "name": p.pond_id,
                 "connected": p.connected,
                 "readings": {
-                    "DO": readings.DO if readings else [],
-                    "PH": readings.PH if readings else [],
-                    "Salinity": readings.Salinity if readings else [],
-                    "Temp": readings.Temp if readings else [],
+                    "DO": water_quality.DO if water_quality else [],
+                    "PH": water_quality.PH if water_quality else [],
+                    "Salinity": water_quality.Salinity if water_quality else [],
+                    "Temp": water_quality.Temp if water_quality else [],
                 }
             })
 

@@ -5,9 +5,9 @@ from django.utils import timezone
 
 #      [Rashmi Rnjan Pradhan]
 
-# -------------------------------
-# Power Center
-# -------------------------------
+# ---------------------------------------------------------------
+#                       Power Center
+# ---------------------------------------------------------------
 class PowerCenter(models.Model):
     pc_id = models.CharField(max_length=50, unique=True)
     status = models.CharField(max_length=20)
@@ -15,27 +15,9 @@ class PowerCenter(models.Model):
     def __str__(self):
         return self.pc_id
 
-# -------------------------------
-# User
-# -------------------------------
-class User(models.Model):
-    uid = models.CharField(max_length=50, primary_key=True)                     # Primary key
-    email = models.EmailField(unique=True)                                      # Unique email
-    name = models.CharField(max_length=255)                                     # User name
-    mobile_no = models.CharField(max_length=20, blank=True, null=True)          # Optional
-    city_village = models.CharField(max_length=100, blank=True, null=True)
-    district = models.CharField(max_length=100, blank=True, null=True)
-    state = models.CharField(max_length=100, blank=True, null=True)
-    pin_code = models.CharField(max_length=20, blank=True, null=True)
-    photo_url = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)                        # Set timestamp on creation
-    updated_at = models.DateTimeField(auto_now=True)                            # Update timestamp on save
-
-    def __str__(self):
-        return self.name
-# -------------------------------
-# Pond
-# -------------------------------
+# ------------------------------------------------------------------
+#                               Pond
+# ------------------------------------------------------------------
 class Pond(models.Model):
     power_center = models.ForeignKey(
         PowerCenter, related_name="ponds", on_delete=models.CASCADE
@@ -49,7 +31,7 @@ class Pond(models.Model):
     pond_use = models.CharField(max_length=100, blank=True, null=True)
     pond_depth = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     pond_depth_type = models.CharField(max_length=50, blank=True, null=True)
-    pond_size = models.DecimalField(max_digits=10, decimal_places=2, blank=True)
+    pond_size = models.DecimalField(max_digits=10, decimal_places=2, default="0")
     area_type = models.CharField(max_length=50, blank=True, null=True)
     species_type = models.CharField(max_length=100, blank=True, null=True)
     species_value = models.CharField(max_length=100, blank=True, null=True)
@@ -72,12 +54,12 @@ class Pond(models.Model):
     def power(self):
         # pond power is True if any feeding motor is online
         if hasattr(self, 'feeding_motor') and self.feeding_motor:
-            return self.feeding_motor.status.lower() == "online"
+            return self.feeding_motor.status.lower() == "active"
         return False
     
-# -------------------------------
-# Feeding Motor (1 per pond)
-# -------------------------------
+# ---------------------------------------------------------------------------
+#                       Feeding Motor (1 per pond)
+# ---------------------------------------------------------------------------
 class FeedingMotor(models.Model):
     pond = models.OneToOneField(
         Pond, related_name="feeding_motor", on_delete=models.CASCADE
@@ -88,9 +70,9 @@ class FeedingMotor(models.Model):
     def __str__(self):
         return self.motor_id
     
-# -------------------------------
-# Check Tray (multiple per pond)
-# -------------------------------
+# ----------------------------------------------------------------------------------
+#                           Check Tray (multiple per pond)
+# ----------------------------------------------------------------------------------
 class CheckTray(models.Model):
     pond = models.ForeignKey(
         Pond, related_name="check_trays", on_delete=models.CASCADE
@@ -101,12 +83,12 @@ class CheckTray(models.Model):
     def __str__(self):
         return self.tray_id
     
-# -------------------------------
-# Pond Sensor Readings
-# -------------------------------
-class PondReading(models.Model):
+# ------------------------------------------------------------------------------------
+#                               Pond Sensor water_quality
+# ------------------------------------------------------------------------------------
+class WaterQuality(models.Model):
     pond = models.OneToOneField(
-        Pond, related_name="readings", on_delete=models.CASCADE
+        Pond, related_name="water_quality", on_delete=models.CASCADE
     )
 
     DO = models.JSONField(default=list)
@@ -115,5 +97,4 @@ class PondReading(models.Model):
     Temp = models.JSONField(default=list)
 
     def __str__(self):
-        return f"Readings of {self.pond.pond_id}"
-
+        return f"Water Quality of {self.pond.pond_id}"

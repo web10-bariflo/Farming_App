@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PowerCenter, Pond, FeedingMotor, CheckTray, PondReading, User
+from .models import PowerCenter, Pond, FeedingMotor, CheckTray, WaterQuality
 
 # Inline for FeedingMotor under Pond
 class FeedingMotorInline(admin.StackedInline):
@@ -11,14 +11,14 @@ class CheckTrayInline(admin.TabularInline):
     model = CheckTray
     extra = 0
 
-# Inline for PondReading (DO, PH, Temp, Salinity readings)
-class PondReadingInline(admin.TabularInline):
-    model = PondReading
+# Inline for WaterQuality (DO, PH, Temp, Salinity water_quality)
+class WaterQualityInline(admin.TabularInline):
+    model = WaterQuality
     extra = 0
 
 # Admin for Pond
 class PondAdmin(admin.ModelAdmin):
-    inlines = [FeedingMotorInline, CheckTrayInline, PondReadingInline]
+    inlines = [FeedingMotorInline, CheckTrayInline, WaterQualityInline]
     list_display = ("pond_id", "power_center", "status", "connected")
     search_fields = ("pond_id", "power_center__pc_id", "status")
     list_filter = ("status", "connected")
@@ -36,16 +36,11 @@ class PowerCenterAdmin(admin.ModelAdmin):
     search_fields = ("pc_id", "status")
     list_filter = ("status",)
 
-# Admin for User
-class UserAdmin(admin.ModelAdmin):
-    list_display = ("uid", "name", "email", "mobile_no", "city_village", "district", "state")
-    search_fields = ("uid", "name", "email", "mobile_no")
-    list_filter = ("state", "district", "city_village")
 
 # Register models
 admin.site.register(PowerCenter, PowerCenterAdmin)
 admin.site.register(Pond, PondAdmin)
 admin.site.register(FeedingMotor)
 admin.site.register(CheckTray)
-admin.site.register(PondReading)
-admin.site.register(User, UserAdmin)
+admin.site.register(WaterQuality)
+
