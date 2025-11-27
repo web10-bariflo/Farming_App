@@ -65,11 +65,15 @@ class CheckTray(models.Model):
 # Pond Sensor Readings
 # -------------------------------
 class PondReading(models.Model):
-    pond = models.ForeignKey(Pond, related_name="sensor_readings", on_delete=models.CASCADE)
-    sensor_type = models.CharField(max_length=20)      # "DO", "PH", "Salinity", "Temp"
-    reading_values = models.JSONField(default=list)     # store multiple readings as a list
+    pond = models.OneToOneField(
+        Pond, related_name="readings", on_delete=models.CASCADE
+    )
+
+    DO = models.JSONField(default=list)
+    PH = models.JSONField(default=list)
+    Salinity = models.JSONField(default=list)
+    Temp = models.JSONField(default=list)
 
     def __str__(self):
-        return f"{self.pond.pond_id} - {self.sensor_type}"
-
+        return f"Readings of {self.pond.pond_id}"
 
