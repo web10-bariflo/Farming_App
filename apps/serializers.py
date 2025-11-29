@@ -31,22 +31,27 @@ class FeedingMotorSerializer(serializers.ModelSerializer):
 # --------------------------------------------------------------
 class PondSerializer(serializers.ModelSerializer):
     id = serializers.CharField(source="pond_id")
-    name = serializers.CharField(source="pond_id")
-    connected = serializers.BooleanField()
-    power = serializers.ReadOnlyField()  # calculated from @property
-    feedingMotor = FeedingMotorSerializer(source="feeding_motor")  # One-To-One
-    checktrays = CheckTraySerializer(source="check_trays", many=True)  # Many checktrays
+    feedingMotor = FeedingMotorSerializer(source="feeding_motor")
+    checktrays = CheckTraySerializer(source="check_trays", many=True)
 
     class Meta:
         model = Pond
-        fields = [
-            "id",
-            "status",
-            "feedingMotor",
-            "checktrays",
-        ]
-        read_only_fields = ["created_at", "updated_at"]
+        fields = ["id", "status", "feedingMotor", "checktrays"]
 
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        # Convert status to active/inactive
+        rep["status"] = "active" if rep["status"].lower() == "active" else "inactive"
+        # Convert feedingMotor status
+        if rep.get("feedingMotor"):
+            rep["feedingMotor"]["status"] = (
+                "active" if rep["feedingMotor"]["status"].lower() == "active" else "inactive"
+            )
+        # Convert checktrays status
+        if rep.get("checktrays"):
+            for ct in rep["checktrays"]:
+                ct["status"] = "active" if ct["status"].lower() == "active" else "inactive"
+        return rep
 
 # --------------------------------------------------------------
 # Serializer for PowerCenter model

@@ -9,5 +9,5 @@ urlpatterns = [
     # Add Pond APIs.
 
     path('ponds/', PondViewAPI.as_view(), name="pond-list-api"),                                # GET all ponds
-    path('ponds/<str:pond_id>', PondDetailAPI.as_view(), name="pond-detail-api")                # GET single pond
+    path('ponds/<str:pond_id>/', PondDetailAPI.as_view(), name="pond-detail-api")                # GET single pond
 ]
