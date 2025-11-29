@@ -43,12 +43,12 @@ class FeedingDataAPI(APIView):
 
         return Response({"powerCenters": serializer.data}, status=status.HTTP_200_OK)
 
-# -------------------------------
-# Water Quality API
-# -------------------------------
+# -----------------------------------------------
+# Water Quality API View
+# -----------------------------------------------
 class WaterQualityAPI(APIView):
     def get(self, request):
-        ponds = Pond.objects.select_related("water_quality").all()
+        ponds = Pond.objects.all()
         serializer = PondWaterQualitySerializer(ponds, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

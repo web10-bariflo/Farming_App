@@ -66,32 +66,45 @@ class FeedingDataSerializer(serializers.ModelSerializer):
         model = PowerCenter
         fields = ["id", "device", "status", "ponds"]
 
-
-# --------------------------------------------------------------
+# -----------------------------------------------
 # Water Quality Reading Serializer
-# Serializes only the water quality parameters (DO, PH, Salinity, Temp)
-# Used as a nested serializer inside the PondWaterQualitySerializer
-# --------------------------------------------------------------
-class WaterQualityReadingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = WaterQuality
-        fields = ["DO", "PH", "Salinity", "Temp"]
+# Aggregates measurements for a pond
+# -----------------------------------------------
+class WaterQualityReadingSerializer(serializers.Serializer):
+    DO = serializers.ListField(child=serializers.FloatField(), default=list)
+    PH = serializers.ListField(child=serializers.FloatField(), default=list)
+    Salinity = serializers.ListField(child=serializers.FloatField(), default=list)
+    Temp = serializers.ListField(child=serializers.FloatField(), default=list)
 
 
-# --------------------------------------------------------------
+# -----------------------------------------------
 # Pond Water Quality Serializer
-# Returns pond basic details along with nested water quality readings
-# Uses WaterQualityReadingSerializer to serialize One-to-One water_quality data
-# --------------------------------------------------------------
+# Returns pond details + aggregated readings
+# -----------------------------------------------
 class PondWaterQualitySerializer(serializers.ModelSerializer):
     id = serializers.CharField(source="pond_id")
     name = serializers.CharField(source="pond_id")
-    readings = WaterQualityReadingSerializer(source="water_quality", read_only=True)
+    readings = serializers.SerializerMethodField()
 
     class Meta:
         model = Pond
         fields = ["id", "name", "connected", "readings"]
 
+    def get_readings(self, obj):
+
+        # If pond is not connected, return empty arrays
+        if not obj.connected:
+            return {"DO": [], "PH": [], "Salinity": [], "Temp": []}
+
+        # Otherwise, aggregate readings from WaterQuality
+        qs = WaterQuality.objects.filter(pond=obj).order_by("measurement_date")
+        data = {
+            "DO": [w.dissolved_oxygen for w in qs if w.dissolved_oxygen is not None],
+            "PH": [w.ph for w in qs if w.ph is not None],
+            "Salinity": [w.salinity for w in qs if w.salinity is not None],
+            "Temp": [w.temperature for w in qs if w.temperature is not None],
+        }
+        return data
 
 # --------------------------------------------------------------
 # Serializer for Pond's Power Status

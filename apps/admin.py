@@ -11,8 +11,8 @@ class CheckTrayInline(admin.TabularInline):
     model = CheckTray
     extra = 0
 
-# Inline for WaterQuality (DO, PH, Temp, Salinity water_quality)
-class WaterQualityInline(admin.TabularInline):
+# Inline for WaterQuality under Pond
+class WaterQualityInline(admin.StackedInline):  # StackedInline is better for many fields
     model = WaterQuality
     extra = 0
 
@@ -36,11 +36,9 @@ class PowerCenterAdmin(admin.ModelAdmin):
     search_fields = ("pc_id", "status")
     list_filter = ("status",)
 
-
 # Register models
 admin.site.register(PowerCenter, PowerCenterAdmin)
 admin.site.register(Pond, PondAdmin)
 admin.site.register(FeedingMotor)
 admin.site.register(CheckTray)
 admin.site.register(WaterQuality)
-
