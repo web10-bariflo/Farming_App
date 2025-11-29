@@ -16,7 +16,7 @@ class PowerCenter(models.Model):
         return self.pc_id
 
 # ------------------------------------------------------------------
-#                               Pond
+#                           Pond
 # ------------------------------------------------------------------
 class Pond(models.Model):
     power_center = models.ForeignKey(
@@ -71,7 +71,7 @@ class FeedingMotor(models.Model):
         return self.motor_id
     
 # ----------------------------------------------------------------------------------
-#                           Check Tray (multiple per pond)
+#                       Check Tray (multiple per pond)
 # ----------------------------------------------------------------------------------
 class CheckTray(models.Model):
     pond = models.ForeignKey(
@@ -84,7 +84,7 @@ class CheckTray(models.Model):
         return self.tray_id
     
 # ------------------------------------------------------------------------------------
-#                               Pond Sensor water_quality
+#                         Pond Sensor water_quality
 # ------------------------------------------------------------------------------------
 class WaterQuality(models.Model):
     pond = models.OneToOneField(
