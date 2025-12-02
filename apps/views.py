@@ -27,11 +27,59 @@ class PondDetailAPI(APIView):
             return Response({"error": "Pond not found"}, status=status.HTTP_404_NOT_FOUND)
         serializer = PondSerializer(pond)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+# -------------------------------
+# Pond Create API   [POST]
+# -------------------------------
+class PondCreateAPI(APIView):
+    def post(self, request):
+        serializer = PondSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "Pond Creaetd Successfully", "data": serializer.data},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# -------------------------------
+# Pond Update API   [PUT]
+# -------------------------------       
+class PondUpdateAPI(APIView):
+    def put(self, request, pond_id):
+        try:
+            pond = Pond.objects.get(pond_id = pond_id)
+        except Pond.DoesNotExist:
+            return Response({"error", "Pond not found"}, status=status.HTTP_404_NOT_FOUND)
         
+        serializer = PondSerializer(pond, data = request.data, partial = True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "Pond Updates Successfully", "data": serializer.data},
+                status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+# -------------------------------
+# Pond Delete API   [DELETE]
+# -------------------------------
+class PondDeleteAPI(APIView):
+    def delete(self, request, pond_id):
+        try:
+            pond = Pond.objects.get(pond_id=pond_id)
+        except Pond.DoesNotExist:
+            return Response({"error": "Pond not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        pond.delete()
+        return Response(
+            {"message": "Pond deleted successfully"},
+            status=status.HTTP_200_OK
+        )
+
 # -------------------------------
 # Feeding Data API
 # -------------------------------
-
 class FeedingDataAPI(APIView):
     def get(self, request):
         pcs = PowerCenter.objects.prefetch_related(
