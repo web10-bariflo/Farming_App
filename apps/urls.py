@@ -6,7 +6,7 @@ from .views import (FeedingDataAPI,
                     PondDetailAPI, 
                     PondCreateAPI,
                     PondDeleteAPI,
-                    PondUpdateAPI)
+                    PondUpdateAPI,)
 
 urlpatterns = [
     path('feeding-data/', FeedingDataAPI.as_view(), name="feeding-data-api"),                   # GET
