@@ -1,23 +1,63 @@
 from django.db import models
-from django.utils import timezone
-# Create your models here.
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+#-------------------------------------------------------------
+# Custom user manager to handle user creation
+#-------------------------------------------------------------
+class UserManager(BaseUserManager):
+    def create_user(self, email, phone, password=None, **extra_fields):
+        """
+        Creates and saves a User with the given email, phone, and password.
+        """
+        if not email:
+            raise ValueError("Email is required")
+        if not phone:
+            raise ValueError("Phone number is required")
+        
+        # Normalize email (convert domain part to lowercase)
+        email = self.normalize_email(email)
+        
+        # Create a new user instance with provided details
+        user = self.model(email=email, phone=phone, **extra_fields)
+        
+        # Set the password (hashing it properly)
+        user.set_password(password)
+        
+        # Save the user to the database
+        user.save(using=self._db)
+        return user
 
-# -------------------------------
-# User
-# -------------------------------
+#------------------------------------
+# Custom User model
+#------------------------------------
+class User(AbstractBaseUser):
+    uid = models.AutoField(primary_key=True)
+    username = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=15, unique=True)
+    aadhar = models.CharField(max_length=12, unique=True, null=True, blank=True)
+    address = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-class User(models.Model):
-    uid = models.CharField(max_length=50, primary_key=True)                     # Primary key
-    email = models.EmailField(unique=True)                                      # Unique email
-    name = models.CharField(max_length=255)                                     # User name
-    mobile_no = models.CharField(max_length=20, blank=True, null=True)
-    state = models.CharField(max_length=100, blank=True, null=True)
-    district = models.CharField(max_length=100, blank=True, null=True)         
-    city_village = models.CharField(max_length=100, blank=True, null=True)
-    pin_code = models.CharField(max_length=20, blank=True, null=True)
-    photo_url = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)                        # Set timestamp on creation
-    updated_at = models.DateTimeField(auto_now=True)                            # Update timestamp on save
+    # Assign the custom user manager
+    objects = UserManager()
+
+    # Field used for login authentication
+    USERNAME_FIELD = "phone"
+    
+    # Fields required when creating a user via createsuperuser
+    REQUIRED_FIELDS = ["email", "username"]
+
+    @property
+    def display_uid(self):
+        """
+        Returns the UID in a formatted way: U-1 
+        """
+        return f"U-{self.uid}"  # Uses the uid field
 
     def __str__(self):
-        return self.name
+        """
+        Returns a human-readable representation of the user.
+        """
+        return f"{self.username} ({self.phone})"

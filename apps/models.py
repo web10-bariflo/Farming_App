@@ -52,8 +52,9 @@ class Pond(models.Model):
     status = models.CharField(max_length=20, default='active')                  # For API "status"
     connected = models.BooleanField(default=True)                               # For API "connected" field
 
-    created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
     power_center = models.ForeignKey(
         PowerCenter, related_name="ponds", on_delete=models.CASCADE
@@ -115,12 +116,14 @@ class WaterQuality(models.Model):
     magnesium = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     nitrite = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     ph = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+    do = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
     salinity = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
-    tds = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     temperature = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    tds = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     turbidity = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     water_color = models.CharField(max_length=100, null=True, blank=True)
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
     def __str__(self):
         return f"Water Quality of {self.pond.pond_id}"

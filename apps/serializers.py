@@ -26,6 +26,12 @@ class FeedingMotorSerializer(serializers.ModelSerializer):
         fields = ["id", "status"]
 
 # --------------------------------------------------------------
+# Helper Function for Status Conversion
+# --------------------------------------------------------------
+def format_status(status):
+    return "active" if str(status).lower() == "active" else "inactive"
+
+# --------------------------------------------------------------
 # Serializer for Pond model
 # Includes nested FeedingMotor and CheckTray serializers
 # --------------------------------------------------------------
@@ -40,17 +46,21 @@ class PondSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
-        # Convert status to active/inactive
-        rep["status"] = "active" if rep["status"].lower() == "active" else "inactive"
+
+        # Convert pond status
+        rep["status"] = format_status(rep["status"])
+
         # Convert feedingMotor status
-        if rep.get("feedingMotor"):
-            rep["feedingMotor"]["status"] = (
-                "active" if rep["feedingMotor"]["status"].lower() == "active" else "inactive"
-            )
+        feeding_motor = rep.get("feedingMotor")
+        if feeding_motor:
+            feeding_motor["status"] = format_status(feeding_motor["status"])
+           
         # Convert checktrays status
-        if rep.get("checktrays"):
-            for ct in rep["checktrays"]:
-                ct["status"] = "active" if ct["status"].lower() == "active" else "inactive"
+        checktrays = rep.get("checktrays")
+        if checktrays:
+            for tray in checktrays:
+                tray["status"] = format_status(tray["status"])
+
         return rep
 
 # --------------------------------------------------------------
@@ -75,7 +85,6 @@ class WaterQualityReadingSerializer(serializers.Serializer):
     PH = serializers.ListField(child=serializers.FloatField(), default=list)
     Salinity = serializers.ListField(child=serializers.FloatField(), default=list)
     Temp = serializers.ListField(child=serializers.FloatField(), default=list)
-
 
 # -----------------------------------------------
 # Pond Water Quality Serializer
@@ -121,7 +130,6 @@ class PondPowerSerializer(serializers.ModelSerializer):
 
     def get_power(self, obj):
         return obj.status.lower() == "active"
-
 
 # --------------------------------------------------------------
 # Serializer for PowerCenter Device

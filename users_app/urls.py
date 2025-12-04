@@ -1,8 +1,9 @@
-# users_app/urls.py
 from django.urls import path
-from .views import UserListAPI
+from .views import SignupAPI, SigninAPI, ForgotPasswordAPI, ResetPasswordAPI
 
 urlpatterns = [
-    path('users/', UserListAPI.as_view(), name="user-list"),                        # GET all + POST
-    path('users/<str:uid>/', UserListAPI.as_view(), name="user-detail"),            # GET by ID
+    path("signup/", SignupAPI.as_view(), name="user-signup"),                           # POST
+    path("signin/", SigninAPI.as_view(), name="user-signin"),                           # POST
+    path("forgot-password/", ForgotPasswordAPI.as_view(), name="forgot-password"),      # POST
+    path("reset-password/", ResetPasswordAPI.as_view(), name="reset-password"),         # POST
 ]
